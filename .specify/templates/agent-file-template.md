@@ -6,6 +6,12 @@ Auto-generated from all feature plans. Last updated: [DATE]
 
 [EXTRACTED FROM ALL PLAN.MD FILES]
 
+## Constitution Reference
+
+This document MUST align with the project constitution. See `.specify/memory/constitution.md`
+for governance, core principles, and required checks (Library-First, Interface Contracts,
+Test-First, Integration Testing, Observability & Versioning).
+
 ## Project Structure
 
 ```text

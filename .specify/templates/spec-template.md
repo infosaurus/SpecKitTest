@@ -5,6 +5,17 @@
 **Status**: Draft  
 **Input**: User description: "$ARGUMENTS"
 
+## Constitution Compliance (mandatory)
+
+All specs MUST include the following explicit statements or links:
+
+- **Library-First applicability**: [Yes/No] and justification if No.
+- **Public contract description**: link or inline description of CLI/API contract.
+- **Testing approach**: unit tests + any required integration/contract tests.
+- **Observability & Versioning**: notes on expected logs/metrics and versioning plan.
+
+Reference: `.specify/memory/constitution.md` for details.
+
 ## User Scenarios & Testing *(mandatory)*
 
 <!--

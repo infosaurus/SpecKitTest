@@ -22,6 +22,17 @@
 
 ## [Category 1]
 
+## Constitution Compliance (required)
+
+Before using this checklist, confirm the feature/spec addresses:
+
+- **Library-First applicability**: [Yes/No] and justification if No.
+- **Public contract**: link or short description of CLI/API contract.
+- **Testing**: unit tests present; integration/contract tests planned if applicable.
+- **Observability & Versioning**: notes on logs/metrics and semantic versioning plan.
+
+Reference: `.specify/memory/constitution.md`
+
 - [ ] CHK001 First checklist item with clear action
 - [ ] CHK002 Second checklist item
 - [ ] CHK003 Third checklist item

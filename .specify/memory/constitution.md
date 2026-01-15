@@ -1,50 +1,71 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+
+- Version change: unknown -> 1.0.0
+- Modified principles:
+	- (new) Library-First → Library-First (established)
+	- (new) Interface Contracts (CLI & APIs)
+	- (new) Test-First (NON-NEGOTIABLE)
+	- (new) Integration & Contract Testing
+	- (new) Observability, Versioning & Simplicity
+- Added sections: Development Workflow, Additional Constraints
+- Removed sections: none
+- Templates requiring updates:
+	- .specify/templates/plan-template.md ✅ updated
+	- .specify/templates/spec-template.md ✅ updated
+	- .specify/templates/tasks-template.md ✅ updated
+	- .specify/templates/checklist-template.md ⚠ pending (no changes required but review advised)
+	- .specify/templates/agent-file-template.md ⚠ pending (manual review recommended)
+- Follow-up TODOs:
+	- TODO(RATIFICATION_DATE): confirm original ratification date if different from 2026-01-13
+-->
+
+# SpecKitTest Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Library-First
+All new features MUST be designed as self-contained libraries or modules.
+- Libraries MUST have clear public interfaces, documentation, and automated unit tests.
+- Rationale: promotes reuse, independent testing, and clearer ownership boundaries.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Interface Contracts (CLI & APIs)
+All public functionality MUST expose a documented contract (CLI, HTTP API, or gRPC).
+- Contracts MUST include input/output formats, error semantics, and versioning expectations.
+- Rationale: explicit contracts reduce integration errors and make upgrades safer.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Test-First (NON-NEGOTIABLE)
+Tests MUST be written before (or alongside) implementation for every new unit of work.
+- Unit tests MUST be automated and runnable locally; integration/contract tests MUST exist
+	for cross-service boundaries or public interfaces.
+- Rationale: ensures correctness, prevents regressions, and documents expected behavior.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Integration & Contract Testing
+Changes that touch service boundaries, shared schemas, or public contracts MUST include
+integration and contract tests that validate end-to-end behavior.
+- Rationale: integration tests catch system-level regressions that unit tests cannot.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+## Additional Constraints
+Security & Compliance:
+- Sensitive data MUST be handled according to applicable law and best practices; secrets
+	MUST NOT be committed to source control.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Performance Goals:
+- Projects SHOULD document performance targets in `plan.md` when applicable.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
-
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Technology Constraints:
+- Preferred languages, runtime versions, and primary tools SHOULD be recorded in each
+	feature `plan.md`. If unspecified, default to pragmatic modern toolchains.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+Amendments:
+- Amendments to this constitution require a documented proposal and approval by at
+	least two maintainers or a majority of the core team, and MUST include a migration
+	plan for material changes.
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Compliance & Reviews:
+- Periodic reviews (at least annually) SHOULD be scheduled to verify ongoing
+	compliance with these principles.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-01-13 | **Last Amended**: 2026-01-13
+

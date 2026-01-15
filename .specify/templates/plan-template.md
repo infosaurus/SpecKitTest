@@ -31,7 +31,20 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+The following checks MUST be documented in this plan and verified before advancing:
+
+- **Library-First**: Confirm the feature is scoped as a self-contained library/module or
+  justify why it is not applicable.
+- **Interface Contracts**: Document public contracts (CLI/HTTP/gRPC) and examples for
+  input/output and error formats.
+- **Test-First**: Link to unit tests that will be created; for cross-boundary work,
+  include integration/contract test plans.
+- **Integration & Contract Testing**: If changing schemas or contracts, include test
+  fixtures and validation steps.
+- **Observability & Versioning**: Declare required logs/metrics and planned semantic
+  versioning for releases or breaking changes.
+
+Reference: `.specify/memory/constitution.md` for full principle definitions.
 
 ## Project Structure
 
