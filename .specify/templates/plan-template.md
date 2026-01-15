@@ -43,6 +43,12 @@ The following checks MUST be documented in this plan and verified before advanci
   fixtures and validation steps.
 - **Observability & Versioning**: Declare required logs/metrics and planned semantic
   versioning for releases or breaking changes.
+ - **Architecture Style**: Declare the chosen architecture style (Onion Architecture expected)
+   and justify deviations. Document layering and dependency directions.
+ - **CQRS / Read-Write Separation**: If applicable, document read model projections,
+   command handling, and consistency expectations (eventual vs strong consistency).
+ - **Domain-Driven Design (Tactical)**: If the domain uses DDD patterns, document Aggregates,
+   Entities, Value Objects, and Domain Events and their boundaries.
 
 Reference: `.specify/memory/constitution.md` for full principle definitions.
 

@@ -1,23 +1,27 @@
 <!--
 Sync Impact Report
 
-- Version change: unknown -> 1.0.0
+- Version change: 1.0.0 -> 1.1.0
 - Modified principles:
-	- (new) Library-First → Library-First (established)
-	- (new) Interface Contracts (CLI & APIs)
-	- (new) Test-First (NON-NEGOTIABLE)
-	- (new) Integration & Contract Testing
-	- (new) Observability, Versioning & Simplicity
+	- Library-First (established)
+	- Interface Contracts (CLI & APIs)
+	- Test-First (NON-NEGOTIABLE)
+	- Integration & Contract Testing
+	- Observability, Versioning & Simplicity
+	- (added) Architecture Style: Onion Architecture
+	- (added) CQRS: separate read/write models
+	- (added) Domain-Driven Design (tactical patterns: Aggregates)
 - Added sections: Development Workflow, Additional Constraints
 - Removed sections: none
 - Templates requiring updates:
 	- .specify/templates/plan-template.md ✅ updated
 	- .specify/templates/spec-template.md ✅ updated
 	- .specify/templates/tasks-template.md ✅ updated
-	- .specify/templates/checklist-template.md ⚠ pending (no changes required but review advised)
+	- .specify/templates/checklist-template.md ✅ updated
 	- .specify/templates/agent-file-template.md ⚠ pending (manual review recommended)
 - Follow-up TODOs:
 	- TODO(RATIFICATION_DATE): confirm original ratification date if different from 2026-01-13
+
 -->
 
 # SpecKitTest Constitution
@@ -45,6 +49,26 @@ Changes that touch service boundaries, shared schemas, or public contracts MUST 
 integration and contract tests that validate end-to-end behavior.
 - Rationale: integration tests catch system-level regressions that unit tests cannot.
 
+### V. Architecture Style — Onion Architecture
+The project SHOULD follow the Onion Architecture to enforce clear separation between domain, application, and infrastructure concerns.
+- The **Domain** layer MUST contain business logic, entities, value objects, and domain services and MUST NOT depend on infrastructure or UI.
+- The **Application** layer (use-cases) MAY orchestrate domain operations and define interfaces (ports) for persistence or external services.
+- The **Infrastructure** layer MUST implement the interfaces (adapters) and be replaceable without changing domain code.
+- Rationale: Onion Architecture reduces coupling, enables testability of business rules, and supports the Library-First principle.
+
+### VI. CQRS (Command Query Responsibility Segregation)
+Designs SHOULD separate write models (commands/aggregates) from read models (projections/queries).
+- Commands that mutate state MUST go through the domain/application write side; read requests SHOULD use optimized read models or projections.
+- The system MUST provide consistency guarantees and document whether reads are eventually consistent or strongly consistent for each API.
+- Rationale: CQRS clarifies responsibilities, improves scalability for read-heavy workloads, and aligns with DDD tactical patterns.
+
+### VII. Domain-Driven Design (Tactical Patterns)
+Teams MUST respect DDD tactical patterns where domain complexity warrants it.
+- Aggregates: group related entities and value objects behind an aggregate root that enforces invariants and transactional boundaries.
+- Entities and Value Objects: model identity semantics explicitly; use value objects for immutable concepts.
+- Domain Events: prefer explicit domain events to communicate state changes across bounded contexts.
+- Rationale: DDD tactical patterns help manage complexity, make invariants explicit, and improve maintainability for complex domains.
+
 ## Additional Constraints
 Security & Compliance:
 - Sensitive data MUST be handled according to applicable law and best practices; secrets
@@ -67,5 +91,5 @@ Compliance & Reviews:
 - Periodic reviews (at least annually) SHOULD be scheduled to verify ongoing
 	compliance with these principles.
 
-**Version**: 1.0.0 | **Ratified**: 2026-01-13 | **Last Amended**: 2026-01-13
+**Version**: 1.1.0 | **Ratified**: 2026-01-13 | **Last Amended**: 2026-01-15
 

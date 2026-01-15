@@ -11,6 +11,8 @@ description: "Task list template for feature implementation"
 **Constitution Compliance**: Ensure `plan.md` and `spec.md` explicitly address the
 following: Library-First scope, public contract details, test strategy (unit + integration),
 and observability/versioning notes. See `.specify/memory/constitution.md`.
+Additionally, ensure the plan/spec document the chosen architecture style (Onion Architecture expected),
+and whether the feature follows CQRS separation or DDD tactical patterns (Aggregates, Entities, Value Objects).
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 

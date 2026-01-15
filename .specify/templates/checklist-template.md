@@ -30,6 +30,8 @@ Before using this checklist, confirm the feature/spec addresses:
 - **Public contract**: link or short description of CLI/API contract.
 - **Testing**: unit tests present; integration/contract tests planned if applicable.
 - **Observability & Versioning**: notes on logs/metrics and semantic versioning plan.
+- **Architecture style**: chosen architecture (e.g., Onion Architecture) and justification for deviations.
+- **Domain modeling**: note if DDD tactical patterns (Aggregates, Entities, Value Objects) apply and where.
 
 Reference: `.specify/memory/constitution.md`
 

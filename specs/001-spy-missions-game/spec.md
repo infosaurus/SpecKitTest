@@ -31,6 +31,93 @@ Reference: `.specify/memory/constitution.md` for details.
   - Demonstrated to users independently
 -->
 
+### User Story — Start a new game (Commander) (Priority: P1)
+
+As `Commander`, I want to start a new game so that a match instance is created, initial state is persisted, and players can be invited or joined.
+
+The `Commander` persona is the gamemaster. It may be a human admin or an automated machine user.
+
+API-level Acceptance Criteria (contract):
+
+- **Endpoint**: `POST /api/v1/matches`
+- **Auth**: Bearer token; caller must have `commander` scope or role. Requests without valid auth return `401 Unauthorized`.
+- **Request (JSON)**:
+
+  ```json
+  {
+    "commander_id": "string",           
+    "mode": "standard",                 
+    "config": {                          
+      "maxPlayers": 2,                   
+      "resourceTick": "PT24H",         
+      "endCondition": { "type": "maxDays", "value": 7 }
+    },
+    "playerInvites": ["playerA","playerB"],
+    "startImmediately": true
+  }
+  ```
+
+- **Successful Response**: `201 Created` with body:
+
+  ```json
+  {
+    "matchId": "uuid",
+    "status": "waiting_for_players",
+    "players": [ {"id":"playerA","state":"invited"}, ... ],
+    "createdAt": "2026-01-15T12:00:00Z",
+    "config": { ... }
+  }
+  ```
+
+- **Headers**: `Location: /api/v1/matches/{matchId}`
+- **Idempotency**: Clients MAY send `Idempotency-Key` to guarantee a single match creation; repeated requests with same key return the same `matchId` (idempotent behavior).
+
+- **Validation errors**: `400 Bad Request` for invalid config (e.g., `maxPlayers` &gt; 2), `403 Forbidden` if caller lacks commander privileges, `409 Conflict` if requested players already in conflicting matches.
+
+- **Postconditions**: On success, a persisted `GameSession` record exists with initial resource pools, match clock/tick schedule set per `resourceTick`, and any `playerInvites` recorded.
+
+Acceptance Scenarios (Gherkin-style):
+
+1) Happy path
+
+  Given a caller with valid commander credentials,
+  When the caller `POST /api/v1/matches` with a valid JSON body and `startImmediately=true`,
+  Then the API responds `201 Created`, returns a `matchId`, and the match record is persisted with `status=waiting_for_players`.
+
+2) Invalid configuration
+
+  Given a caller with valid credentials,
+  When the caller requests `maxPlayers=4` for a 2-player mode,
+  Then the API responds `400 Bad Request` with a clear error describing the constraint violation.
+
+3) Unauthorized caller
+
+  Given a caller without `commander` privileges,
+  When they call `POST /api/v1/matches`,
+  Then the API responds `403 Forbidden`.
+
+4) Idempotent creation
+
+  Given a caller sends `Idempotency-Key: abc123` and the same request twice,
+  When the second request is received,
+  Then the API returns the original `201` response (or `200 OK` with the same `matchId`) and does not create a duplicate match.
+
+Edge cases / Operational notes
+
+- If `startImmediately=false`, the API should create the match in `pending` state and allow an explicit `POST /api/v1/matches/{matchId}/start` by the commander to transition to `waiting_for_players` or `active`.
+- Ensure the `resourceTick` accepts ISO 8601 durations (e.g., `PT24H`) and that server-side scheduling uses UTC.
+- Rate-limit match creation API to prevent abuse by automated commanders; return `429 Too Many Requests` when limits exceeded.
+- Audit: creation must write an audit event including `commander_id`, request payload (sanitized), and `matchId`.
+
+Notes for implementers
+
+- Provide server-side validation and defaults for `config` fields. If `resourceTick` missing, default to `PT24H`.
+- Persist minimal initial state to allow resuming: players array, resource pools, config, createdAt, nextTickAt.
+- The API contract above is the canonical acceptance criterion for this user story and should be covered by integration tests that exercise both success and failure paths.
+
+
+---
+
 ### User Story 1 - Play a complete 2‑player match (Priority: P1)
 
 Two players create or join a match, deploy missions and agents, receive daily resources, and play until the match end condition is reached. The system tallies victory points and declares a winner.

@@ -21,6 +21,7 @@
 - [x] Edge cases are identified
 - [x] Scope is clearly bounded
 - [x] Dependencies and assumptions identified
+- [x] API contract defined for match creation (POST /api/v1/matches)
 
 ## Feature Readiness
 
