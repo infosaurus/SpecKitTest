@@ -33,13 +33,13 @@ Reference: `.specify/memory/constitution.md` for details.
 
 ### User Story — Start a new game (Commander) (Priority: P1)
 
-As `Commander`, I want to start a new game so that a match instance is created, initial state is persisted, and players can be invited or joined.
+As `Commander`, I want to start a new game so that a game instance is created, initial state is persisted, and players can be invited or joined.
 
 The `Commander` persona is the gamemaster. It may be a human admin or an automated machine user.
 
 API-level Acceptance Criteria (contract):
 
-- **Endpoint**: `POST /api/v1/matches`
+- **Endpoint**: `POST /api/v1/games`
 - **Auth**: Bearer token; caller must have `commander` scope or role. Requests without valid auth return `401 Unauthorized`.
 - **Request (JSON)**:
 
@@ -69,20 +69,20 @@ API-level Acceptance Criteria (contract):
   }
   ```
 
-- **Headers**: `Location: /api/v1/matches/{matchId}`
-- **Idempotency**: Clients MAY send `Idempotency-Key` to guarantee a single match creation; repeated requests with same key return the same `matchId` (idempotent behavior).
+- **Headers**: `Location: /api/v1/games/{gameId}`
+- **Idempotency**: Clients MAY send `Idempotency-Key` to guarantee a single game creation; repeated requests with same key return the same `gameId` (idempotent behavior).
 
-- **Validation errors**: `400 Bad Request` for invalid config (e.g., `maxPlayers` &gt; 2), `403 Forbidden` if caller lacks commander privileges, `409 Conflict` if requested players already in conflicting matches.
+- **Validation errors**: `400 Bad Request` for invalid config (e.g., `maxPlayers` &gt; 2), `403 Forbidden` if caller lacks commander privileges, `409 Conflict` if requested players already in conflicting games.
 
-- **Postconditions**: On success, a persisted `GameSession` record exists with initial resource pools, match clock/tick schedule set per `resourceTick`, and any `playerInvites` recorded.
+- **Postconditions**: On success, a persisted `GameSession` record exists with initial resource pools, game clock/tick schedule set per `resourceTick`, and any `playerInvites` recorded.
 
 Acceptance Scenarios (Gherkin-style):
 
 1) Happy path
 
   Given a caller with valid commander credentials,
-  When the caller `POST /api/v1/matches` with a valid JSON body and `startImmediately=true`,
-  Then the API responds `201 Created`, returns a `matchId`, and the match record is persisted with `status=waiting_for_players`.
+  When the caller `POST /api/v1/games` with a valid JSON body and `startImmediately=true`,
+  Then the API responds `201 Created`, returns a `gameId`, and the game record is persisted with `status=waiting_for_players`.
 
 2) Invalid configuration
 
@@ -93,21 +93,21 @@ Acceptance Scenarios (Gherkin-style):
 3) Unauthorized caller
 
   Given a caller without `commander` privileges,
-  When they call `POST /api/v1/matches`,
+  When they call `POST /api/v1/games`,
   Then the API responds `403 Forbidden`.
 
 4) Idempotent creation
 
   Given a caller sends `Idempotency-Key: abc123` and the same request twice,
   When the second request is received,
-  Then the API returns the original `201` response (or `200 OK` with the same `matchId`) and does not create a duplicate match.
+  Then the API returns the original `201` response (or `200 OK` with the same `gameId`) and does not create a duplicate game.
 
 Edge cases / Operational notes
 
-- If `startImmediately=false`, the API should create the match in `pending` state and allow an explicit `POST /api/v1/matches/{matchId}/start` by the commander to transition to `waiting_for_players` or `active`.
+- If `startImmediately=false`, the API should create the game in `pending` state and allow an explicit `POST /api/v1/games/{gameId}/start` by the commander to transition to `waiting_for_players` or `active`.
 - Ensure the `resourceTick` accepts ISO 8601 durations (e.g., `PT24H`) and that server-side scheduling uses UTC.
-- Rate-limit match creation API to prevent abuse by automated commanders; return `429 Too Many Requests` when limits exceeded.
-- Audit: creation must write an audit event including `commander_id`, request payload (sanitized), and `matchId`.
+- Rate-limit game creation API to prevent abuse by automated commanders; return `429 Too Many Requests` when limits exceeded.
+- Audit: creation must write an audit event including `commander_id`, request payload (sanitized), and `gameId`.
 
 Notes for implementers
 
@@ -118,17 +118,17 @@ Notes for implementers
 
 ---
 
-### User Story 1 - Play a complete 2‑player match (Priority: P1)
+### User Story 1 - Play a complete 2‑player game (Priority: P1)
 
-Two players create or join a match, deploy missions and agents, receive daily resources, and play until the match end condition is reached. The system tallies victory points and declares a winner.
+Two players create or join a game, deploy missions and agents, receive daily resources, and play until the game end condition is reached. The system tallies victory points and declares a winner.
 
 **Why this priority**: Core game loop — delivers full gameplay and validates core mechanics.
 
-**Independent Test**: Create a match with two test accounts, simulate resource ticks, perform mission deployments and resolves, and verify victory points and final winner are computed correctly.
+**Independent Test**: Create a game with two test accounts, simulate resource ticks, perform mission deployments and resolves, and verify victory points and final winner are computed correctly.
 
 **Acceptance Scenarios**:
 
-1. **Given** two players in a match, **When** both deploy/resolve missions and agents over the match duration, **Then** the system records actions, updates resources, assigns victory points, and declares a single winner at end.
+1. **Given** two players in a game, **When** both deploy/resolve missions and agents over the game duration, **Then** the system records actions, updates resources, assigns victory points, and declares a single winner at end.
 2. **Given** one player resolves a mission, **When** resolution completes, **Then** the owner's resources decrease by the mission cost and victory points (if any) are awarded.
 
 ---
@@ -153,7 +153,7 @@ Players select a faction (Shadow Syndicate, Iron Dominion, Warriors of the Earth
 
 **Why this priority**: Ensures factions feel distinct and introduces strategic depth.
 
-**Independent Test**: Play multiple matches with identical starting conditions but different faction choices; verify faction abilities materially affect options and outcomes.
+**Independent Test**: Play multiple games with identical starting conditions but different faction choices; verify faction abilities materially affect options and outcomes.
 
 **Acceptance Scenarios**:
 
@@ -163,7 +163,7 @@ Players select a faction (Shadow Syndicate, Iron Dominion, Warriors of the Earth
 
 ### Edge Cases
 
-- What happens when a player disconnects mid-match? (Expected: match remains active; disconnected player may be replaced by AI or the match continues on a grace timer.)
+- What happens when a player disconnects mid-game? (Expected: game remains active; disconnected player may be replaced by AI or the game continues on a grace timer.)
 - How does the system handle simultaneous mission resolves or competing actions that target the same mission? (Expected: deterministic ordering rule, e.g., timestamp or server-validated sequence.)
 - How are ties in victory points resolved? (Expected: defined tie-breaker: most resolved missions, then remaining resources.)
 
@@ -176,15 +176,15 @@ Players select a faction (Shadow Syndicate, Iron Dominion, Warriors of the Earth
 
 ### Functional Requirements
 
-- **FR-001**: System MUST allow creation and discovery of a 2‑player match and allow two players to join a single match instance.
+-- **FR-001**: System MUST allow creation and discovery of a 2‑player game and allow two players to join a single game instance.
 - **FR-002**: System MUST expose each player's `Player Surface` consisting of five zones: `Plans`, `Player's missions`, `Opponent's missions` (limited visibility), `Investigation zone`, and `Resource Pool`.
 - **FR-003**: System MUST support `Agent` and `Mission` entities; agents can be deployed to missions or the Investigation zone; missions accept resources over time and can be `Resolve`d by their owner once funded.
 - **FR-004**: System MUST support five resource types (`Credits`, `Force`, `Stealth`, `Investigation`, `Tech`) per player and allow spending these to deploy entities.
 - **FR-005**: System MUST regenerate player resources on a periodic cadence (resource tick) so players receive additional resources over time. [NEEDS CLARIFICATION: resource tick frequency — "daily" was specified; confirm exact cadence and whether it should be adjustable for testing or game modes]
-- **FR-006**: System MUST compute and persist victory points for mission resolutions and other scoring events and declare a winner when the match end condition is met. [NEEDS CLARIFICATION: match end condition — fixed duration (days), first-to-X points, or player agreement?]
+-- **FR-006**: System MUST compute and persist victory points for mission resolutions and other scoring events and declare a winner when the game end condition is met. [NEEDS CLARIFICATION: game end condition — fixed duration (days), first-to-X points, or player agreement?]
 - **FR-007**: System MUST provide an `Investigation` result when agents probe opponent missions; this result may be deterministic or probabilistic depending on mission/faction abilities. [NEEDS CLARIFICATION: desired intel model — deterministic reveal vs. probabilistic/confidence-based results]
 - **FR-008**: The system MUST prevent negative resources and enforce cost checks when deploying entities.
-- **FR-009**: The system MUST persist match state so players can resume and audit past actions.
+-- **FR-009**: The system MUST persist game state so players can resume and audit past actions.
 - **FR-010**: The system MUST provide an audit/log of resolved missions and agent investigations for replay and dispute resolution.
 
 ### Key Entities *(include if feature involves data)*
@@ -195,25 +195,25 @@ Players select a faction (Shadow Syndicate, Iron Dominion, Warriors of the Earth
 - **Mission**: owner, cost (resource bundle), accumulated resources, state (planned/deployed/resolved), reward (victory points, side-effects), visibility rules.
 - **Agent**: owner, location (deployed mission or Investigation zone), abilities (investigate, sabotage), cooldowns, cost.
 - **Resource Pool**: per-player counts for `Credits`, `Force`, `Stealth`, `Investigation`, `Tech`.
-- **GameSession**: match id, players, start timestamp, current tick, end condition, history of events.
+- **GameSession**: game id, players, start timestamp, current tick, end condition, history of events.
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: Two players can create and complete a match where victory points are tallied and a winner is declared without data loss or corrupt state (testable by automated match simulation).
+-- **SC-001**: Two players can create and complete a game where victory points are tallied and a winner is declared without data loss or corrupt state (testable by automated game simulation).
 - **SC-002**: Resource regeneration (resource tick) operates according to the agreed cadence and players can spend regenerated resources to deploy entities (verifiable via tick logs and state snapshots).
 - **SC-003**: Investigation results follow the specified intel model (deterministic or probabilistic) and can be validated by replaying events against ground-truth mission data.
 - **SC-004**: The core gameplay loop (deploy mission/agent, accumulate resources, resolve missions) is executable end-to-end in an MVP and delivers a conclusive outcome for both players.
 
 ## Assumptions
 
-- The system will initially target 2‑player matches only (no free-for-all or >2 players per match).
+- The system will initially target 2‑player games only (no free-for-all or >2 players per game).
 - "Daily" resource regeneration in the user description will be treated as a configurable resource tick; default cadence requires confirmation (see FR-005).
 - The spec focuses on game mechanics and does not prescribe UI tech stacks or backend frameworks (those belong in `plan.md`).
 
 ## [NEEDS CLARIFICATION]
 
 - Resource tick cadence and whether "daily" means once-per-calendar-day, once-per-24-hours, or a configurable faster cadence for testing.
-- Match end condition: fixed duration vs first-to-X points vs player-agreed finish.
+- Game end condition: fixed duration vs first-to-X points vs player-agreed finish.
 - Investigation intel model: deterministic full reveal vs probabilistic/confidence-based partial reveal.
