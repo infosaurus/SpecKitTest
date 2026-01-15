@@ -11,6 +11,7 @@ Sync Impact Report
 	- (added) Architecture Style: Onion Architecture
 	- (added) CQRS: separate read/write models
 	- (added) Domain-Driven Design (tactical patterns: Aggregates)
+	- (added) Domain Model Fidelity: use specs' domain concepts only
 - Added sections: Development Workflow, Additional Constraints
 - Removed sections: none
 - Templates requiring updates:
@@ -69,6 +70,13 @@ Teams MUST respect DDD tactical patterns where domain complexity warrants it.
 - Domain Events: prefer explicit domain events to communicate state changes across bounded contexts.
 - Rationale: DDD tactical patterns help manage complexity, make invariants explicit, and improve maintainability for complex domains.
 
+### VIII. Domain Model Fidelity
+The project MUST only use domain concepts explicitly defined in the feature specification files under `/specs/*`.
+- Engineers and contributors MUST NOT invent or infer new domain entity names, concepts, or types that are not present in the applicable `spec.md` and companion data model files.
+- If a new domain type or concept is required, the implementer MUST open an explicit clarification with the spec owner and obtain approval before introducing it into the domain layer.
+- Tooling and agents (bots, code generators) working on the repository MUST follow this rule and prompt for approval if they encounter a need to create new domain concepts.
+- Rationale: Ensures a single source of truth for domain language, prevents accidental drift between spec and implementation, and preserves testability and governance of domain models.
+
 ## Additional Constraints
 Security & Compliance:
 - Sensitive data MUST be handled according to applicable law and best practices; secrets
@@ -91,5 +99,5 @@ Compliance & Reviews:
 - Periodic reviews (at least annually) SHOULD be scheduled to verify ongoing
 	compliance with these principles.
 
-**Version**: 1.1.0 | **Ratified**: 2026-01-13 | **Last Amended**: 2026-01-15
+**Version**: 1.2.0 | **Ratified**: 2026-01-13 | **Last Amended**: 2026-01-15
 
