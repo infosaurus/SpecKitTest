@@ -18,6 +18,8 @@ description: "Task list for implementing 'Start a new game' (Commander)"
 - [ ] T005 Implement authentication scaffolding (JWT + commander role) in src/backend (src/backend/Infrastructure/Auth/*)
 - [ ] T006 [P] Setup PostgreSQL connection and EF Core migrations in src/backend/Infrastructure (configure connection string and migrations folder)
 - [ ] T007 [P] Add event-store abstraction (interface) in src/backend/Infrastructure/EventStore (placeholder implementation using Postgres append-only table)
+ - [ ] T006 [P] Setup file-based storage configuration in src/backend/Infrastructure (configure `./data` path, create directories, and ensure write permissions)
+ - [ ] T007 [P] Add event-store abstraction (interface) in src/backend/Infrastructure/EventStore with a placeholder file-based append-only implementation writing events to `./data/events/{matchId}.events`
 - [ ] T008 [P] Add domain test harness and project: tests/domain (Expecto) and test project files under src/domain/tests
 
 ## Phase 3: User Story US1 - Start a new game (Priority: P1) 🎯 MVP
@@ -42,8 +44,8 @@ description: "Task list for implementing 'Start a new game' (Commander)"
 ### Infrastructure & API
 
 - [ ] T016 [US1] Implement ASP.NET Core controller POST /api/v1/games in src/backend/Controllers/GamesController.cs that validates auth, maps request to StartGameCmd, calls application layer, and returns 201 with Location header
-- [ ] T017 [US1] Implement event persistence adapter in src/backend/Infrastructure/EventStore/PostgresEventStore.cs (persist events and snapshots)
-- [ ] T018 [US1] Wire domain port to infrastructure adapter in src/backend/Startup (dependency injection)
+ - [ ] T017 [US1] Implement event persistence adapter in src/backend/Infrastructure/EventStore/FileEventStore.cs (persist newline-delimited JSON events and write snapshots to `./data/snapshots`)
+ - [ ] T018 [US1] Wire domain port to infrastructure adapter in src/backend/Startup (dependency injection)
 - [ ] T019 [US1] Implement projection handler to populate read tables and create GET /api/v1/games/{gameId} in src/backend/Controllers/GamesQueryController.cs and src/backend/Projections/GameProjection.cs
 
 ### Integration
@@ -72,7 +74,7 @@ description: "Task list for implementing 'Start a new game' (Commander)"
 ## Implementation Strategy (MVP-first)
 
 - Focus on a minimal end-to-end: implement F# GameSession aggregate with StartGame command, an in-memory event store adapter, and a minimal ASP.NET controller to exercise the flow. Cover with unit, contract, and a single integration test.
-- After MVP passes, replace in-memory adapter with PostgresEventStore and add projections for read models.
+ - After MVP passes, replace in-memory adapter with the durable file-based `FileEventStore` (or an external event store) and add projections that persist JSON read-models under `./data/read-models/`.
 
 ## Files to be created/updated (high-value references)
 

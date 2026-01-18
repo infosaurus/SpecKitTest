@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, 001-spy-missions-game ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore and build domain
+        run: |
+          dotnet restore src/domain
+          dotnet build src/domain -c Release --no-restore
+      - name: Restore and build backend
+        run: |
+          dotnet restore src/backend
+          dotnet build src/backend -c Release --no-restore
+      - name: Lint frontend package.json
+        run: |
+          echo "Skipping frontend lint for placeholder"

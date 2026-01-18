@@ -1,0 +1,9 @@
+{
+  "name": "spy-missions-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "echo \"Start the frontend\" && exit 0",
+    "build": "echo \"Build step placeholder\" && exit 0"
+  }
+}
